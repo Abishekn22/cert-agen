@@ -1,56 +1,110 @@
-# CertAgen — AI Operations Agent for Enterprise Certificates
+# 🛡️ CertAgen — AI Operations Agent for Enterprise Certificates
 
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18.3+-61DAFB.svg)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-5.4+-646CFF.svg)](https://vitejs.dev/)
-[![Ollama](https://img.shields.io/badge/AI-Ollama%20(Local)-white.svg)](https://ollama.ai/)
-[![Tests](https://img.shields.io/badge/Tests-18%20Passed-brightgreen.svg)]()
+<div align="center">
 
-> A production-grade, local AI Operations Agent for enterprise digital certificate lifecycle management. Understands natural language queries, executes deterministic database tools via local LLM function calling, guarantees zero hallucination of operational facts, and enforces human-in-the-loop confirmation for destructive or state-changing actions.
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18.3+-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-5.4+-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Ollama](https://img.shields.io/badge/AI-Ollama%20(Local)-white?style=for-the-badge&logo=ollama&logoColor=black)
+![Tests](https://img.shields.io/badge/Tests-18%20Passed-2ea44f?style=for-the-badge&logo=pytest&logoColor=white)
+
+<p align="center">
+  <b>A production-grade, privacy-preserving AI Operations Agent for enterprise digital certificate lifecycle management.</b><br>
+  Understands natural language queries, autonomously selects and executes deterministic database tools via local LLM function calling, guarantees zero hallucination of operational facts, and enforces strict human-in-the-loop confirmation for destructive or state-changing actions.
+</p>
+
+</div>
 
 ---
 
-## 🌟 Table of Contents
-- [CertAgen](#-problem--mission)
-- [Key Features](#-key-features)
-- [Architecture & Workflow](#-architecture--workflow)
+## 📑 Table of Contents
+
+- [Executive Summary & Problem Statement](#-executive-summary--problem-statement)
+- [Application Screenshots & UI Tour](#-application-screenshots--ui-tour)
+- [Key Features & Architectural Tenets](#-key-features--architectural-tenets)
+- [System Architecture](#-system-architecture)
 - [Deterministic Tool Registry](#-deterministic-tool-registry)
-- [Safety & Human-in-the-Loop Policies](#-safety--human-in-the-loop-policies)
-- [Tech Stack](#-tech-stack)
-- [Directory Structure](#-directory-structure)
+- [Two-Phase Action Execution (Human-in-the-Loop)](#-two-phase-action-execution-human-in-the-loop)
+- [Technology Stack](#-technology-stack)
+- [Repository Structure](#-repository-structure)
 - [Quick Start Guide](#-quick-start-guide)
 - [API Reference](#-api-reference)
-- [Automated Testing](#-automated-testing)
-- [Sample Demo Scenarios](#-sample-demo-scenarios)
+- [Automated Testing Suite](#-automated-testing-suite)
+- [Interactive Demo Scenarios](#-interactive-demo-scenarios)
+- [License](#-license)
 
 ---
 
-## 🏢 CertAgen Overview
+## 🏢 Executive Summary & Problem Statement
 
-Enterprises manage thousands of digital certificates across hybrid cloud clusters, internal microservices, external APIs, and IoT devices. Operations, Security, and SRE teams face:
+Enterprises operate complex hybrid and multi-cloud infrastructures where thousands of digital certificates (TLS/SSL, mTLS, code signing, and device identity certificates) safeguard internal microservices and perimeter ingress. Operations, SRE, and Security teams face critical bottlenecks:
 
-1. **Massive Operational Overhead:** High time spent tracking down expiration dates, verifying Certificate Revocation Lists (CRL/OCSP), and checking tenant ownership.
-2. **Outage Risks:** Missed renewals lead to service disruption, broken TLS handshakes, and severe SLA breaches.
-3. **Action Uncertainty:** Initiating certificate renewals without confirming revocation status or duplicate pending requests creates conflicts.
+- **High Operational Overhead:** Engineers spend significant hours manually querying certificate validity, cross-referencing expiration windows, verifying Certificate Revocation Lists (CRL/OCSP), and mapping tenant ownership.
+- **Outage Risks:** Unplanned certificate expirations trigger severe production outages, broken service meshes, and customer trust loss.
+- **Workflow Inefficiencies & Drift:** Generating renewal requests manually without verifying current revocation status or duplicate pending tickets introduces conflicting requests.
 
-**CertAgen solves this with a localized, privacy-preserving AI Operations Agent.** The agent interprets natural language operational requests, calls deterministic backend tools against the database, summarizes results clearly, and prevents accidental operations via strict confirmation dialogs.
-
----
-
-## ✨ Key Features
-
-- **100% Local & Zero-Cost AI:** Powered by **Ollama (`llama3.2:latest`)**. Zero external cloud dependencies, zero recurring API tokens, total enterprise data privacy.
-- **Strict Anti-Hallucination Design:** The LLM *never* generates certificate status, expiration dates, or IDs out of thin air. It only selects tools and formats responses from real database rows.
-- **Human-in-the-Loop Confirmation:** Action tools like `create_renewal_request` pause execution, present an explicit confirmation card to the operator, and only execute upon user approval.
-- **Full Operational Observability:** Every interaction exposes the tool invoked, input arguments, database record count, execution time in milliseconds, and health indicators.
-- **Fast, Production-Ready Stack:** FastAPI async REST backend + Vite React SPA with responsive dark operations design system.
+**CertAgen solves this with a localized, privacy-first AI Operations Agent.** The agent interprets natural language queries, maps them to deterministic backend tools against SQLite/PostgreSQL, formats real operational data, and prevents accidental operations via explicit confirmation modals.
 
 ---
 
-## 🏗️ Architecture & Workflow
+## 🖼️ Application Screenshots & UI Tour
 
-### Closed-Loop Tool Execution Sequence
+### 1. Operations Dashboard Overview
+The CertAgen dashboard features a sleek enterprise dark theme with real-time connectivity indicators for the local Ollama LLM and the database, accompanied by pre-configured operational quick chips.
+
+<div align="center">
+  <img src="docs/screenshots/01_homepage_overview.png" alt="CertAgen Operations Dashboard" width="900" style="border-radius: 8px; border: 1px solid #334155; margin-bottom: 20px;" />
+  <p><i>Figure 1: Clean desktop operations dashboard with live status pills (Ollama llama3.2 & Database) and quick query chips.</i></p>
+</div>
+
+---
+
+### 2. Natural Language Query & Deterministic Retrieval
+When an operator queries certificate metadata (e.g. *"Check certificate ABC123 status"*), the agent selects the exact tool, queries the database, and returns both an AI-synthesized operational summary and a structured data table with complete telemetry.
+
+<div align="center">
+  <img src="docs/screenshots/02_certificate_query_result.png" alt="Certificate Query Result" width="900" style="border-radius: 8px; border: 1px solid #334155; margin-bottom: 20px;" />
+  <p><i>Figure 2: Natural language response, structured record table with status badges, and collapsible tool execution telemetry.</i></p>
+</div>
+
+---
+
+### 3. Two-Phase Action Confirmation Modal (Human-in-the-Loop)
+When an operator requests a state-changing action (e.g. *"Generate renewal request for CERT-EXP-02"*), CertAgen intercepts the action tool (`is_action=True`), validates preconditions, and pauses execution with an explicit confirmation dialog.
+
+<div align="center">
+  <img src="docs/screenshots/03_action_confirmation_modal.png" alt="Action Confirmation Modal" width="900" style="border-radius: 8px; border: 1px solid #334155; margin-bottom: 20px;" />
+  <p><i>Figure 3: High-visibility confirmation banner preventing unauthorized or accidental state mutations.</i></p>
+</div>
+
+---
+
+### 4. Verified Action Completion
+Upon explicit operator approval by clicking **"✓ Confirm Renewal"**, the renewal record is securely committed to the database, assigning a permanent tracking ID (`REN-2026-0004`) and updating operational status.
+
+<div align="center">
+  <img src="docs/screenshots/04_renewal_confirmed_result.png" alt="Renewal Confirmed Result" width="900" style="border-radius: 8px; border: 1px solid #334155; margin-bottom: 20px;" />
+  <p><i>Figure 4: Confirmed renewal execution showing generated tracking identifier and pending renewal record.</i></p>
+</div>
+
+---
+
+## ⚡ Key Features & Architectural Tenets
+
+| Tenet | Implementation |
+| :--- | :--- |
+| **🔒 100% Local & Zero Cost** | Powered by **Ollama (`llama3.2:latest`)**. No external API keys, no subscription costs, and no sensitive infrastructure metadata leaves the perimeter. |
+| **🎯 Zero Hallucination** | Operational data (domains, dates, revocation flags) is retrieved exclusively via deterministic SQLAlchemy queries. The LLM acts solely as a semantic parser and conversational summarizer. |
+| **🛡️ Safe Action Execution** | Destructive and state-changing actions require explicit two-phase human confirmation via the UI modal before committing. |
+| **📊 Full Observability** | Every interaction logs the selected tool, parameter inputs, database record counts, and execution latency in milliseconds. |
+| **🔄 Database Portability** | Built with SQLAlchemy 2.0 ORM; defaults to zero-configuration SQLite for local dev and seamlessly swaps to PostgreSQL for enterprise production. |
+
+---
+
+## 🏗️ System Architecture
+
+### Agent Closed-Loop Execution Flow
 
 ```mermaid
 sequenceDiagram
@@ -71,8 +125,8 @@ sequenceDiagram
     Ollama-->>Agent: tool_call: get_expiring_certificates(days=30)
     Agent->>Registry: execute("get_expiring_certificates", {days: 30})
     Registry->>Service: get_expiring_certificates(days=30)
-    Service->>DB: Query certificates with status=ACTIVE and expiry <= 30d
-    DB-->>Service: [Matching Records]
+    Service->>DB: SELECT * FROM certificates WHERE expires_at BETWEEN now AND now+30d
+    DB-->>Service: [Matching Certificate Rows]
     Service-->>Registry: Structured Records Payload
     Registry-->>Agent: Formatted Tool Result
     Agent->>Ollama: POST /api/chat (tool result + operational system prompt)
@@ -82,139 +136,134 @@ sequenceDiagram
     React-->>User: Displays summary, interactive data table, and tool telemetry
 ```
 
-### Action Confirmation Flow (Two-Phase Renewal)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Operations Engineer
-    participant React as React UI
-    participant FastAPI as FastAPI (/api/agent)
-    participant Agent as Certificate Agent
-    participant Ollama as Local Ollama LLM
-    participant RenewalAPI as POST /api/renewals
-    participant Service as Renewal Service
-    participant DB as SQLite DB
-
-    User->>React: "Generate renewal request for ABC123"
-    React->>FastAPI: POST /api/agent { question: "..." }
-    FastAPI->>Agent: process_query()
-    Agent->>Ollama: POST /api/chat
-    Ollama-->>Agent: tool_call: create_renewal_request(certificate_id="ABC123")
-    Agent->>Agent: Intercept action tool: requires confirmation!
-    Agent-->>FastAPI: ActionConfirmationRequired
-    FastAPI-->>React: 200 OK { requires_confirmation: true, action_required: {...} }
-    React-->>User: Renders Action Confirmation Modal
-    User->>React: Clicks [Confirm Renewal]
-    React->>RenewalAPI: POST /api/renewals { certificate_id: "ABC123" }
-    RenewalAPI->>Service: create_renewal()
-    Service->>DB: Validate certificate state & insert renewal record
-    DB-->>Service: Created record (request_id="REN-2026-0001")
-    Service-->>RenewalAPI: RenewalResponse
-    RenewalAPI-->>React: 201 Created
-    React-->>User: "Renewal request created successfully."
-```
-
 ---
 
 ## 🛠️ Deterministic Tool Registry
 
-All operational capabilities are encapsulated in deterministic Python functions that execute against SQLAlchemy:
+CertAgen exposes deterministic Python tools registered in `backend/app/tools/registry.py`:
 
-| Tool Name | Parameters | Safety Tier | Purpose |
-| :--- | :--- | :--- | :--- |
-| `get_certificate` | `certificate_id: str` | Read-Only | Retrieves full metadata for a certificate. |
-| `get_expiring_certificates` | `days: int` | Read-Only | Queries active certificates expiring within $N$ days. |
-| `get_certificates_expiring_between` | `start_date: str`, `end_date: str` | Read-Only | Queries certificates expiring within a date range (e.g. next month). |
-| `check_revocation` | `certificate_id: str` | Read-Only | Checks whether a certificate is revoked and the reason. |
-| `get_customer_certificates` | `customer_name: str` | Read-Only | Fetches all certificates belonging to a customer or tenant. |
-| `create_renewal_request` | `certificate_id: str` | **Action (Confirmation Required)** | Validates certificate validity and creates a tracked renewal request. |
-
----
-
-## 🔒 Safety & Human-in-the-Loop Policies
-
-CertAgen protects enterprise infrastructure from accidental changes:
-1. **Action Tool Interception:** Any tool that modifies database state or triggers third-party actions is flagged with `is_action=True`.
-2. **Pre-flight Feasibility:** The agent inspects preconditions before confirmation:
-   - Cannot renew a revoked certificate (`RevocationConflictError`).
-   - Cannot create duplicate renewals if one is already pending (`RenewalConflictError`).
-   - Certificate must exist in inventory (`CertificateNotFoundError`).
-3. **Explicit Modal Approval:** The user must review the action summary and explicitly click **"Confirm Renewal"** in the frontend before any state change is committed.
+| Tool Name | Parameters | Safety Tier | Description |
+| :--- | :--- | :---: | :--- |
+| `get_certificate` | `certificate_id: str` | 🟢 Read-Only | Retrieves comprehensive certificate metadata by ID. |
+| `get_expiring_certificates` | `days: int` | 🟢 Read-Only | Identifies active certificates expiring within $N$ days. |
+| `get_certificates_expiring_between` | `start_date: str`, `end_date: str` | 🟢 Read-Only | Queries certificates expiring within a date range (e.g. next month). |
+| `check_revocation` | `certificate_id: str` | 🟢 Read-Only | Verifies whether a certificate is revoked, revocation date, and reason. |
+| `get_customer_certificates` | `customer_name: str` | 🟢 Read-Only | Retrieves all certificates belonging to a specific customer/tenant. |
+| `create_renewal_request` | `certificate_id: str` | 🟡 **Action (Confirm)** | Validates state and queues a renewal request. |
 
 ---
 
-## 💻 Tech Stack
+## 🔐 Two-Phase Action Execution (Human-in-the-Loop)
 
-- **Frontend:** React 18, Vite 5, Vanilla CSS Design System (no heavy runtime overhead, dark enterprise palette).
-- **Backend:** Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2.0.
-- **Database:** SQLite (default local zero-config); fully compliant with PostgreSQL via SQLAlchemy ORM.
-- **AI Engine:** Ollama running `llama3.2:latest` (or `llama3.1:8b`).
-- **Testing:** Pytest, pytest-asyncio, FastAPI TestClient.
+CertAgen implements a strict safety policy for operations that mutate state:
+
+```
+[User Request: "Generate renewal request for CERT-EXP-02"]
+       │
+       ▼
+[Ollama Tool Call: create_renewal_request]
+       │
+       ▼
+[Agent Intercept: is_action == True]
+       │
+       ├──► 1. Pre-flight Validation (Check existence, revocation status, duplicate renewals)
+       │
+       ▼
+[Return Action Required: { action_type: "CREATE_RENEWAL", certificate_id: "CERT-EXP-02" }]
+       │
+       ▼
+[Frontend UI: Displays Action Confirmation Modal]
+       │
+       ├── [Cancel] ──► Action aborted without DB modification
+       │
+       └── [Confirm Renewal] ──► POST /api/renewals ──► Persist Record & Return ID
+```
 
 ---
 
-## 📂 Directory Structure
+## 💻 Technology Stack
+
+### Backend
+- **Framework:** Python 3.11+ / FastAPI (Async ASGI)
+- **Data Validation:** Pydantic v2
+- **ORM & Database:** SQLAlchemy 2.0 with SQLite (zero-config local) / PostgreSQL support
+- **Local AI:** Ollama Client communicating with `llama3.2:latest`
+
+### Frontend
+- **Framework:** React 18 with Vite 5
+- **Styling:** Vanilla CSS Custom Design System (dark enterprise theme, responsive layout, glassmorphic cards)
+- **State Management:** React hooks (`useState`, `useCallback`, `useEffect`)
+
+---
+
+## 📂 Repository Structure
 
 ```
 CertAgen/
+├── docs/
+│   └── screenshots/                   # Application screenshots
+│       ├── 01_homepage_overview.png
+│       ├── 02_certificate_query_result.png
+│       ├── 03_action_confirmation_modal.png
+│       └── 04_renewal_confirmed_result.png
+│
 ├── backend/
 │   ├── app/
 │   │   ├── agent/
-│   │   │   ├── agent.py               # AI Agent orchestrator
+│   │   │   ├── agent.py               # AI Agent orchestrator & confirmation handler
 │   │   │   ├── ollama_client.py       # Ollama chat & tool schema client
 │   │   │   └── prompts.py             # System & operational prompt definitions
 │   │   ├── api/
-│   │   │   ├── agent_router.py        # POST /api/agent
-│   │   │   ├── certificate_router.py  # GET /api/certificates/*
-│   │   │   ├── renewal_router.py      # POST /api/renewals
+│   │   │   ├── agent_router.py        # POST /api/agent endpoint
+│   │   │   ├── certificate_router.py  # GET /api/certificates/* endpoints
+│   │   │   ├── renewal_router.py      # POST /api/renewals endpoint
 │   │   │   └── __init__.py
 │   │   ├── models/
-│   │   │   ├── certificate.py         # Certificate ORM model
-│   │   │   └── renewal.py             # RenewalRequest ORM model
-│   │   ├── schemas/                   # Pydantic validation schemas
+│   │   │   ├── certificate.py         # Certificate SQLAlchemy model
+│   │   │   └── renewal.py             # RenewalRequest SQLAlchemy model
+│   │   ├── schemas/                   # Pydantic input/output schemas
 │   │   ├── seed/
-│   │   │   └── seed_data.py           # Enterprise seed dataset (valid, revoked, expiring)
+│   │   │   └── seed_data.py           # Enterprise certificate seed dataset
 │   │   ├── services/
-│   │   │   ├── certificate_service.py # Certificate business logic
-│   │   │   └── renewal_service.py     # Renewal business logic & checks
+│   │   │   ├── certificate_service.py # Certificate query business logic
+│   │   │   └── renewal_service.py     # Renewal business logic & safety checks
 │   │   ├── tools/
 │   │   │   ├── certificate_tools.py   # Deterministic tool implementations
-│   │   │   └── registry.py            # Central tool registry & schemas
+│   │   │   └── registry.py            # Tool registry & schema generator
 │   │   ├── utils/
-│   │   │   └── logger.py              # Structured logging
-│   │   ├── config.py                  # Pydantic BaseSettings & env configs
-│   │   ├── database.py                # Database engine & session
-│   │   └── main.py                    # FastAPI entry point & CORS
+│   │   │   └── logger.py              # Structured logging utility
+│   │   ├── config.py                  # Environment & settings configuration
+│   │   ├── database.py                # Database engine & session maker
+│   │   └── main.py                    # FastAPI entry point & CORS configuration
 │   ├── tests/
-│   │   ├── test_agent_tools.py        # Tool registry & schema unit tests
+│   │   ├── test_agent_tools.py        # Tool registry & schema tests
 │   │   ├── test_api.py                # REST API & mocked agent tests
 │   │   ├── test_certificates.py       # Certificate query & filter tests
 │   │   └── test_renewals.py           # Renewal lifecycle & conflict tests
 │   ├── certificates.db                # SQLite database
-│   ├── requirements.txt
-│   └── .env
+│   ├── requirements.txt               # Backend dependencies
+│   └── .env                           # Environment configuration
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── AnswerPanel.jsx        # Agent synthesis view
+│   │   │   ├── AnswerPanel.jsx        # AI answer card
 │   │   │   ├── CertificateTable.jsx   # Formatted certificate table
 │   │   │   ├── ChatInput.jsx          # Input bar + quick demo pills
-│   │   │   ├── ErrorMessage.jsx       # Alert banner
+│   │   │   ├── ErrorMessage.jsx       # Dismissible alert banner
 │   │   │   ├── ExecutionTime.jsx      # Telemetry badge
 │   │   │   ├── LoadingState.jsx       # Animated status spinner
-│   │   │   └── ToolCalls.jsx          # Observability drawer
+│   │   │   └── ToolCalls.jsx          # Observability accordion
 │   │   ├── services/
 │   │   │   └── api.js                 # Frontend API client
-│   │   ├── App.jsx                    # Root state management & confirmation modal
-│   │   ├── index.css                  # Dark enterprise theme CSS
+│   │   ├── App.jsx                    # Root component & confirmation modal
+│   │   ├── index.css                  # Dark enterprise design system CSS
 │   │   └── main.jsx
 │   ├── package.json
-│   └── vite.config.js                 # Proxy config for /api and /health
+│   └── vite.config.js                 # Vite proxy configuration
 │
 ├── PROJECT_PLAN.md                    # Formal architecture specification
-└── README.md                          # Documentation
+└── README.md                          # Project documentation
 ```
 
 ---
@@ -235,17 +284,17 @@ CertAgen/
 ```bash
 cd backend
 
-# Install dependencies
+# Install Python dependencies
 pip install -r requirements.txt
 
 # Seed the database with enterprise sample certificates
 python -m app.seed.seed_data
 
-# Run FastAPI backend
+# Launch the FastAPI backend server
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-The backend starts at `http://127.0.0.1:8000`. You can inspect the interactive OpenAPI documentation at `http://127.0.0.1:8000/docs`.
+The backend will start at `http://127.0.0.1:8000`. You can inspect interactive OpenAPI documentation at `http://127.0.0.1:8000/docs`.
 
 ### 2. Frontend Setup
 
@@ -253,14 +302,14 @@ In a new terminal:
 ```bash
 cd frontend
 
-# Install dependencies
+# Install npm dependencies
 npm install
 
-# Start Vite dev server
+# Start the Vite development server
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:5173`.
+Open your browser to `http://localhost:5173/`.
 
 ---
 
@@ -268,77 +317,101 @@ The frontend will be available at `http://localhost:5173`.
 
 ### Health Check
 - **`GET /health`**
-  Returns database and Ollama availability status:
   ```json
   {
     "status": "ok",
     "ollama": "available",
     "database": "available",
-    "model": "llama3.2:latest"
+    "model": "llama3.2:latest",
+    "details": {
+      "model_ready": true,
+      "ollama_info": "connected"
+    }
   }
   ```
 
 ### AI Agent Endpoint
 - **`POST /api/agent`**
-  Body: `{"question": "Show certificates expiring in the next 30 days"}`
-  Response:
-  ```json
-  {
-    "answer": "Found 7 certificates expiring in the next 30 days...",
-    "tool_calls": [
-      {
-        "tool_name": "get_expiring_certificates",
-        "arguments": { "days": 30 },
-        "result_summary": "Retrieved 7 certificates",
-        "success": true
-      }
-    ],
-    "records": [ ... ],
-    "execution_time_ms": 1250,
-    "action_required": null
-  }
-  ```
+  - **Request Body:** `{"question": "Show certificates expiring in the next 30 days"}`
+  - **Response Body:**
+    ```json
+    {
+      "answer": "Found 10 certificates expiring in the next 30 days...",
+      "tool_calls": [
+        {
+          "tool_name": "get_expiring_certificates",
+          "arguments": { "days": "30" },
+          "result_summary": "Found 10 certificate(s) expiring within 30 days.",
+          "success": true
+        }
+      ],
+      "records": [ ... ],
+      "execution_time_ms": 1150,
+      "action_required": null
+    }
+    ```
 
 ### Direct Certificate Endpoints
-- **`GET /api/certificates/{certificate_id}`** — Details of a specific certificate.
+- **`GET /api/certificates/{certificate_id}`** — Retrieve metadata for a specific certificate.
 - **`GET /api/certificates/expiring?days=30`** — List certificates expiring within $N$ days.
 - **`GET /api/certificates/customer/{customer_name}`** — List certificates for a customer.
-- **`GET /api/certificates/{certificate_id}/revocation`** — Check revocation status.
-- **`POST /api/renewals`** — Create renewal request (`{"certificate_id": "ABC123", "requested_by": "ops-agent"}`).
+- **`GET /api/certificates/{certificate_id}/revocation`** — Check revocation status and reason.
+- **`POST /api/renewals`** — Create a renewal request (`{"certificate_id": "ABC123", "requested_by": "ops-agent"}`).
 
 ---
 
-## 🧪 Automated Testing
+## 🧪 Automated Testing Suite
 
-The backend includes a comprehensive test suite covering the tool registry, business logic, edge conditions, duplicate prevention, and mocked agent routing:
+The backend contains a test suite covering service business logic, edge conditions, revocation checks, and mocked agent routing:
 
 ```bash
 cd backend
 python -m pytest -v
 ```
 
-### Test Coverage Highlights:
-- **`test_certificates.py`:** Active certificates, missing certificate 404 handling, revocation verification, customer tenancy filtering.
-- **`test_renewals.py`:** Safe renewal creation, prevention of duplicate requests, rejection of renewals for revoked certificates.
-- **`test_agent_tools.py`:** Schema generation, tool registry lookup, validation of parameter types.
-- **`test_api.py`:** End-to-end REST endpoints and mocked Ollama agent execution.
+```
+============================= test session starts =============================
+platform win32 -- Python 3.14.6, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\abishek\Desktop\CertAgen\backend
+collected 18 items
+
+tests/test_agent_tools.py::test_tool_registry_contains_required_tools PASSED [  5%]
+tests/test_agent_tools.py::test_ollama_tool_schemas PASSED               [ 11%]
+tests/test_agent_tools.py::test_reject_unregistered_tool PASSED          [ 16%]
+tests/test_agent_tools.py::test_action_tool_flag PASSED                  [ 22%]
+tests/test_api.py::test_health_endpoint PASSED                           [ 27%]
+tests/test_api.py::test_get_certificate_api PASSED                       [ 33%]
+tests/test_api.py::test_get_expiring_certificates_api PASSED             [ 38%]
+tests/test_api.py::test_create_renewal_api PASSED                        [ 44%]
+tests/test_api.py::test_agent_api_with_mocked_ollama PASSED              [ 50%]
+tests/test_certificates.py::test_get_existing_certificate PASSED         [ 55%]
+tests/test_certificates.py::test_get_missing_certificate PASSED          [ 61%]
+tests/test_certificates.py::test_get_expiring_certificates PASSED        [ 66%]
+tests/test_certificates.py::test_customer_certificates PASSED            [ 72%]
+tests/test_certificates.py::test_revocation_checks PASSED                [ 77%]
+tests/test_renewals.py::test_create_valid_renewal PASSED                 [ 83%]
+tests/test_renewals.py::test_prevent_duplicate_renewal PASSED            [ 88%]
+tests/test_renewals.py::test_reject_renewal_for_revoked_cert PASSED      [ 94%]
+tests/test_renewals.py::test_reject_renewal_for_missing_cert PASSED      [100%]
+
+======================== 18 passed in 2.62s ========================
+```
 
 ---
 
-## 💡 Sample Demo Scenarios
+## 💡 Interactive Demo Scenarios
 
-Test these in the frontend UI or via `POST /api/agent`:
-
-| # | Question / Scenario | Expected Tool & Behavior |
-| :--- | :--- | :--- |
-| **1** | *"Show certificates expiring in the next 30 days"* | Calls `get_expiring_certificates(days=30)`. Returns table of active expiring certs. |
-| **2** | *"Show certificates expiring next month"* | Calls `get_certificates_expiring_between(...)`. Displays next month's certs. |
-| **3** | *"Check certificate ABC123 status"* | Calls `get_certificate(certificate_id='ABC123')`. Returns domain, customer, validity. |
-| **4** | *"Is certificate XYZ789 revoked?"* | Calls `check_revocation(certificate_id='XYZ789')`. Confirms revoked state and reason. |
-| **5** | *"List certificates belonging to Customer A"* | Calls `get_customer_certificates(customer_name='Customer A')`. Filters by tenant. |
-| **6** | *"Generate renewal request for ABC123"* | Detects action tool `create_renewal_request`. Prompts user with **Action Confirmation Modal**. |
+| # | Natural Language Query | Selected Tool | Expected Outcome |
+| :-: | :--- | :--- | :--- |
+| **1** | *"Show certificates expiring in the next 30 days"* | `get_expiring_certificates(days=30)` | Lists active expiring certs with remaining days count. |
+| **2** | *"Show certificates expiring next month"* | `get_certificates_expiring_between(...)` | Filters certs expiring within the calendar boundaries. |
+| **3** | *"Check certificate ABC123 status"* | `get_certificate(certificate_id='ABC123')` | Returns domain, tenant, validity status, and expiry date. |
+| **4** | *"Is certificate XYZ789 revoked?"* | `check_revocation(certificate_id='XYZ789')` | Confirms revocation status, date, and revocation reason. |
+| **5** | *"List certificates belonging to Customer A"* | `get_customer_certificates(customer_name='Customer A')` | Tenancy filtering isolating Customer A certificates. |
+| **6** | *"Generate renewal request for CERT-EXP-02"* | `create_renewal_request(certificate_id='CERT-EXP-02')` | Pauses for **Action Confirmation Modal** before creating renewal. |
 
 ---
 
 ## 📄 License
-MIT License. Built for enterprise infrastructure operations.
+
+This project is licensed under the MIT License — see the LICENSE file for details. Built for enterprise infrastructure and SRE operations.
