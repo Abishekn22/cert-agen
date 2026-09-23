@@ -12,7 +12,7 @@
 ---
 
 ## 🌟 Table of Contents
-- [Problem & Mission](#-problem--mission)
+- [CertAgen](#-problem--mission)
 - [Key Features](#-key-features)
 - [Architecture & Workflow](#-architecture--workflow)
 - [Deterministic Tool Registry](#-deterministic-tool-registry)
